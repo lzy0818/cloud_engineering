@@ -1,0 +1,52 @@
+run_config:
+  name: random-forest-featset-1
+  author: MSiA Group 4
+  version: 2023-version
+  description: Detect credit card fraud.
+  dependencies: requirements.txt
+  data_source: 'data/card_transdata.csv'
+
+eda:
+  plt_update:
+    font.size: 16
+    axes.prop_cycle: cycler('color', ['#0085ca', '#888b8d', '#00c389', '#f4364c', '#e56db1'])
+    xtick.labelsize: 14
+    ytick.labelsize: 14
+    figure.figsize: [12.0, 8.0]
+    axes.labelsize: 20
+    axes.labelcolor: '#677385'
+    axes.titlesize: 20
+    lines.color: '#0055A7'
+    lines.linewidth: 3
+    text.color: '#677385'
+  pairplot_subset: 10000
+  num_features: ['distance_from_home', 'distance_from_last_transaction', 'ratio_to_median_purchase_price']
+  cat_features: ['repeat_retailer', 'used_chip', 'used_pin_number', 'online_order']
+
+preprocess:
+  outliers: ['distance_from_home', 'distance_from_last_transaction', 'ratio_to_median_purchase_price']
+
+train_model:
+  train_test_split:
+    test_size: 0.2
+    random_state: 457
+    target_col: fraud
+  standardize_data:
+    col_names: [distance_from_home, distance_from_last_transaction, ratio_to_median_purchase_price]
+  fit_model:
+    param_distributions:
+      n_estimators: [50, 100, 150]
+      max_depth: [5, 10, 15]
+    n_iter: 1
+    cv: 5
+    scoring: 'f1'
+  
+evaluate_performance:
+  target_col: fraud
+  bin_predict_col: y_pred
+  metrics: [f1, confusion_matrix, accuracy]
+
+aws:
+  upload: True
+  bucket_name: group4-project
+  prefix: experiments

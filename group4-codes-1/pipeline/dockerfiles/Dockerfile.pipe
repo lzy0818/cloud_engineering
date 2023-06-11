@@ -1,0 +1,26 @@
+# Base image: slim is a smaller image compared to python3.9 with less system-level dependencies
+FROM --platform=linux/x86_64 python:3.9-slim
+
+# Create a directory for the kaggle.json file
+RUN mkdir /root/.kaggle
+# Copy the kaggle.json file to the image
+COPY kaggle.json /root/.kaggle/kaggle.json
+# Set appropriate permissions for the kaggle.json file
+RUN chmod 600 /root/.kaggle/kaggle.json
+
+# Set working directory
+WORKDIR /app
+
+# Install Python dependencies
+# Copy requirements file to working directory /app
+RUN /usr/local/bin/python -m pip install --upgrade pip
+COPY requirements.txt . 
+RUN pip install -r requirements.txt
+
+# Copy source code to working directory /app
+COPY main.py .
+COPY src src
+COPY config config
+
+# Set docker image start to run with command python main.py
+ENTRYPOINT ["python", "main.py"]
